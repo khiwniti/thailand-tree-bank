@@ -174,14 +174,18 @@ async function startServer() {
 // Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down gracefully...');
-  await redisClient.quit();
+  if (redisClient) {
+    await redisClient.quit();
+  }
   await prisma.$disconnect();
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
   console.log('\n🛑 SIGTERM received, shutting down...');
-  await redisClient.quit();
+  if (redisClient) {
+    await redisClient.quit();
+  }
   await prisma.$disconnect();
   process.exit(0);
 });
