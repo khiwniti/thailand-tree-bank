@@ -70,15 +70,34 @@ function App() {
   // Show loading screen while LIFF initializes
   if (liffLoading) {
     return (
-      <div className="flex flex-col h-screen bg-emerald-700 items-center justify-center text-white">
-        <div className="mb-6">
-          <svg className="animate-bounce w-20 h-20 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
+      <div className="flex flex-col h-screen bg-gradient-to-br from-emerald-600 via-teal-700 to-cyan-800 items-center justify-center text-white relative overflow-hidden">
+        {/* Animated background circles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
+          <div className="absolute w-96 h-96 bg-teal-400/20 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse" style={{animationDelay: '1s'}}></div>
         </div>
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-white border-t-transparent mb-4"></div>
-        <p className="text-lg font-medium">กำลังโหลดแอปพลิเคชัน...</p>
-        <p className="text-sm text-emerald-200 mt-2">กรุณารอสักครู่</p>
+
+        {/* Tree icon with pulsing animation */}
+        <div className="mb-8 relative z-10">
+          <div className="relative">
+            <div className="absolute inset-0 bg-white/20 rounded-full blur-xl animate-pulse"></div>
+            <div className="relative bg-white/10 p-8 rounded-full backdrop-blur-sm">
+              <Leaf size={64} className="text-white animate-bounce" style={{animationDuration: '2s'}} />
+            </div>
+          </div>
+        </div>
+
+        {/* Loading spinner */}
+        <div className="relative mb-6">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-white/30 border-t-white"></div>
+          <div className="absolute inset-0 animate-ping rounded-full h-16 w-16 border-2 border-white/20"></div>
+        </div>
+
+        {/* Text */}
+        <div className="text-center relative z-10">
+          <p className="text-2xl font-bold mb-2 animate-pulse">กำลังโหลด...</p>
+          <p className="text-emerald-100">เตรียมระบบธนาคารต้นไม้</p>
+        </div>
       </div>
     );
   }
@@ -86,26 +105,48 @@ function App() {
   // Show error if LIFF failed
   if (liffError) {
     return (
-      <div className="flex flex-col h-screen bg-red-50 items-center justify-center p-6 text-center">
-        <AlertCircle size={64} className="text-red-500 mb-4" />
-        <h2 className="text-xl font-bold text-red-900 mb-2">เกิดข้อผิดพลาด</h2>
-        <p className="text-red-700 mb-4 max-w-md">{liffError.message}</p>
-        <div className="bg-red-100 border border-red-300 rounded-lg p-4 mb-4 max-w-md">
-          <p className="text-sm text-red-800 text-left">
-            <strong>วิธีแก้ไข:</strong>
-            <br />
-            1. ตรวจสอบว่าตั้งค่า LIFF ID ถูกต้อง
-            <br />
-            2. ตรวจสอบว่าเปิดแอปผ่าน LINE
-            <br />
-            3. ลองรีเฟรชหน้าเว็บ
-          </p>
+      <div className="flex flex-col h-screen bg-gradient-to-br from-red-50 to-orange-50 items-center justify-center p-6">
+        {/* Error icon with animation */}
+        <div className="relative mb-6">
+          <div className="absolute inset-0 bg-red-400/20 rounded-full blur-2xl animate-pulse"></div>
+          <div className="relative bg-gradient-to-br from-red-100 to-orange-100 p-6 rounded-full">
+            <AlertCircle size={64} className="text-red-500" />
+          </div>
         </div>
+
+        {/* Error message */}
+        <h2 className="text-2xl font-bold text-red-900 mb-3">เกิดข้อผิดพลาด</h2>
+        <p className="text-red-700 mb-6 max-w-md text-center">{liffError.message}</p>
+
+        {/* Troubleshooting card */}
+        <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 mb-6 max-w-md w-full">
+          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <FileText size={20} className="text-red-500" />
+            วิธีแก้ไข
+          </h3>
+          <div className="space-y-3 text-sm text-gray-700">
+            {[
+              'ตรวจสอบว่าตั้งค่า LIFF ID ถูกต้อง',
+              'ตรวจสอบว่าเปิดแอปผ่าน LINE',
+              'ลองรีเฟรชหน้าเว็บ'
+            ].map((step, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 text-xs font-bold">
+                  {i + 1}
+                </div>
+                <p className="pt-0.5">{step}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Reload button */}
         <button
           onClick={() => window.location.reload()}
-          className="bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 font-medium"
+          className="bg-gradient-to-r from-red-600 to-orange-600 text-white px-8 py-4 rounded-2xl hover:shadow-2xl font-bold transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2"
         >
-          โหลดใหม่
+          <span>โหลดใหม่</span>
+          <span className="text-xl">↻</span>
         </button>
       </div>
     );
@@ -114,33 +155,87 @@ function App() {
   // Show login screen if not logged in
   if (!isLoggedIn) {
     return (
-      <div className="flex flex-col h-screen bg-gradient-to-br from-emerald-600 to-teal-800 items-center justify-center p-6 text-white text-center">
-        <div className="mb-8">
-          <div className="text-6xl mb-4">🌳</div>
-          <h1 className="text-4xl font-bold mb-2">ธนาคารต้นไม้</h1>
-          <p className="text-emerald-100 text-lg">ระบบบริหารจัดการคาร์บอนเครดิต</p>
-          <p className="text-emerald-200 text-sm mt-2">Tree Bank Management System</p>
+      <div className="flex flex-col h-screen bg-gradient-to-br from-emerald-600 via-teal-700 to-cyan-800 items-center justify-center p-6 text-white relative overflow-hidden">
+        {/* Animated background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute w-96 h-96 bg-emerald-400/20 rounded-full blur-3xl -top-48 -left-48 animate-pulse"></div>
+          <div className="absolute w-96 h-96 bg-teal-400/20 rounded-full blur-3xl top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{animationDelay: '0.5s'}}></div>
+          <div className="absolute w-96 h-96 bg-cyan-400/20 rounded-full blur-3xl -bottom-48 -right-48 animate-pulse" style={{animationDelay: '1s'}}></div>
         </div>
-        <div className="bg-white/10 backdrop-blur p-8 rounded-2xl max-w-md">
-          <p className="text-white/90 mb-6 text-base">
-            เข้าสู่ระบบผ่าน LINE เพื่อเริ่มใช้งาน
-            <br />
-            <span className="text-sm text-emerald-200">ปลอดภัย รวดเร็ว ใช้งานง่าย</span>
-          </p>
-          <button
-            onClick={login}
-            className="w-full bg-white text-emerald-700 py-4 rounded-lg font-bold text-lg hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2 shadow-lg"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
-            </svg>
-            เข้าสู่ระบบด้วย LINE
-          </button>
-          <p className="text-xs text-emerald-200 mt-4">
-            โดยการเข้าสู่ระบบ คุณยอมรับ
-            <br />
-            ข้อกำหนดการใช้งานและนโยบายความเป็นส่วนตัว
-          </p>
+
+        <div className="relative z-10 max-w-md w-full">
+          {/* Logo & Title Section */}
+          <div className="text-center mb-12 animate-fade-in">
+            {/* Decorative tree illustration */}
+            <div className="relative inline-block mb-6">
+              <div className="absolute inset-0 bg-white/20 rounded-full blur-2xl animate-pulse"></div>
+              <div className="relative bg-gradient-to-br from-white/20 to-white/5 p-6 rounded-3xl backdrop-blur-xl border border-white/30 shadow-2xl">
+                <div className="flex items-center justify-center">
+                  <Leaf size={80} className="text-white drop-shadow-2xl" />
+                </div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h1 className="text-5xl font-bold mb-3 drop-shadow-lg">
+              ธนาคารต้นไม้
+            </h1>
+            <div className="inline-block bg-white/10 backdrop-blur px-6 py-2 rounded-full border border-white/20 mb-2">
+              <p className="text-emerald-50 text-lg font-medium">ระบบบริหารจัดการคาร์บอนเครดิต</p>
+            </div>
+            <p className="text-emerald-200 text-sm mt-3">Thailand Government Tree Bank System</p>
+          </div>
+
+          {/* Login Card */}
+          <div className="bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/20 shadow-2xl animate-slide-up">
+            <div className="text-center mb-6">
+              <p className="text-white text-lg mb-2">
+                เข้าสู่ระบบผ่าน LINE
+              </p>
+              <p className="text-emerald-100 text-sm">
+                ปลอดภัย • รวดเร็ว • ใช้งานง่าย
+              </p>
+            </div>
+
+            {/* LINE Login Button */}
+            <button
+              onClick={login}
+              className="group w-full bg-gradient-to-r from-white to-emerald-50 text-emerald-700 py-5 rounded-2xl font-bold text-lg hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-3 shadow-xl hover:scale-105 active:scale-95"
+            >
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="group-hover:scale-110 transition-transform">
+                <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+              </svg>
+              <span>เข้าสู่ระบบด้วย LINE</span>
+            </button>
+
+            {/* Features list */}
+            <div className="mt-8 space-y-3">
+              {[
+                { icon: '🌳', text: 'บันทึกและติดตามต้นไม้' },
+                { icon: '📊', text: 'คำนวณคาร์บอนเครดิต' },
+                { icon: '🤖', text: 'วิเคราะห์ด้วย AI' }
+              ].map((feature, i) => (
+                <div key={i} className="flex items-center gap-3 text-white/80 text-sm animate-fade-in" style={{animationDelay: `${i * 0.1}s`}}>
+                  <span className="text-xl">{feature.icon}</span>
+                  <span>{feature.text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Terms */}
+            <p className="text-xs text-emerald-100 mt-6 text-center leading-relaxed">
+              โดยการเข้าสู่ระบบ คุณยอมรับ
+              <br />
+              <span className="underline">ข้อกำหนดการใช้งาน</span> และ <span className="underline">นโยบายความเป็นส่วนตัว</span>
+            </p>
+          </div>
+
+          {/* Thai Gov Badge */}
+          <div className="text-center mt-6 animate-fade-in" style={{animationDelay: '0.5s'}}>
+            <div className="inline-block bg-white/5 backdrop-blur px-4 py-2 rounded-full border border-white/10">
+              <p className="text-xs text-emerald-100">🇹🇭 ระบบภาครัฐไทย • Thai Government System</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -265,40 +360,53 @@ function App() {
     <div className="flex flex-col h-screen bg-gray-50 max-w-md mx-auto shadow-2xl overflow-hidden relative border-x border-gray-200 font-sans">
 
       {/* Updated Header with LIFF profile */}
-      <header className="bg-emerald-700 text-white p-4 pt-8 shadow-md z-20">
-        <div className="flex justify-between items-center mb-2">
-          <div className="flex items-center gap-3">
-            {profile?.pictureUrl && (
-              <img
-                src={profile.pictureUrl}
-                alt={profile.displayName}
-                className="w-12 h-12 rounded-full border-2 border-white shadow-md"
-              />
-            )}
-            <div>
-              <h1 className="text-xl font-bold">ธนาคารต้นไม้</h1>
-              <p className="text-emerald-100 text-xs">สวัสดี, {profile?.displayName}</p>
+      <header className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 text-white p-4 pt-8 shadow-lg z-20 relative">
+        {/* Decorative background elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute w-32 h-32 bg-white/10 rounded-full blur-2xl -top-16 -right-16"></div>
+          <div className="absolute w-24 h-24 bg-white/5 rounded-full blur-xl -bottom-12 -left-12"></div>
+        </div>
+
+        <div className="relative z-10">
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-3">
+              {profile?.pictureUrl && (
+                <div className="relative">
+                  <div className="absolute inset-0 bg-white/40 rounded-full blur-md"></div>
+                  <img
+                    src={profile.pictureUrl}
+                    alt={profile.displayName}
+                    className="relative w-14 h-14 rounded-full border-3 border-white shadow-xl object-cover"
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
+                </div>
+              )}
+              <div>
+                <h1 className="text-xl font-bold drop-shadow-md">ธนาคารต้นไม้</h1>
+                <p className="text-emerald-100 text-sm">สวัสดี, {profile?.displayName || 'ผู้ใช้งาน'}</p>
+              </div>
             </div>
-          </div>
-          <div className="flex items-center gap-2">
             <button
               onClick={() => setShowSettingsModal(true)}
-              className="p-2 hover:bg-emerald-600 rounded-lg transition-colors"
+              className="p-3 hover:bg-white/20 rounded-xl transition-all duration-300 backdrop-blur-sm hover:scale-110 active:scale-95"
               title="ตั้งค่า"
             >
-              <Settings size={20} />
+              <Settings size={22} />
             </button>
           </div>
-        </div>
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-emerald-100 text-xs flex items-center gap-1">
-              <MapIcon size={12} /> {plot.name}
-            </p>
-          </div>
-          <div className="text-right">
-             <div className="text-2xl font-bold">{currentCarbon.toFixed(1)}</div>
-             <div className="text-[10px] text-emerald-100 uppercase tracking-wide">กก. คาร์บอน/ปี</div>
+
+          {/* Plot info and carbon stats */}
+          <div className="flex justify-between items-end bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+            <div className="flex-1">
+              <p className="text-emerald-100 text-xs flex items-center gap-1.5 mb-1">
+                <MapIcon size={14} /> แปลงที่เลือก
+              </p>
+              <p className="font-semibold text-base">{plot.name}</p>
+            </div>
+            <div className="text-right">
+               <div className="text-3xl font-bold drop-shadow-lg">{currentCarbon.toFixed(1)}</div>
+               <div className="text-xs text-emerald-100 uppercase tracking-wider">กก. คาร์บอน/ปี</div>
+            </div>
           </div>
         </div>
       </header>
