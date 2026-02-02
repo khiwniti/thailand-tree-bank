@@ -1,3 +1,6 @@
+/* Import Leaflet CSS from node_modules (no CDN!) */
+@import 'leaflet/dist/leaflet.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
