@@ -86,27 +86,27 @@ app.get('/api', (req: Request, res: Response) => {
 });
 
 // Auth routes
-import authRoutes from './routes/auth';
+import authRoutes from './routes/auth.js';
 app.use('/api/auth', authRoutes);
 
 // Plot routes
-import plotRoutes from './routes/plots';
+import plotRoutes from './routes/plots.js';
 app.use('/api/plots', plotRoutes);
 
 // Tree routes
-import treeRoutes from './routes/trees';
+import treeRoutes from './routes/trees.js';
 app.use('/api/trees', treeRoutes);
 
 // Document routes
-import documentRoutes from './routes/documents';
+import documentRoutes from './routes/documents.js';
 app.use('/api/documents', documentRoutes);
 
 // Carbon credit routes
-import carbonRoutes from './routes/carbon';
+import carbonRoutes from './routes/carbon.js';
 app.use('/api/carbon', carbonRoutes);
 
 // Verification routes
-import verificationRoutes from './routes/verifications';
+import verificationRoutes from './routes/verifications.js';
 app.use('/api/verifications', verificationRoutes);
 
 // Error handling middleware
