@@ -121,7 +121,7 @@ MAX_FILE_SIZE=10485760
 UPLOAD_DIR=/app/uploads
 
 # Optional: Google Gemini AI
-GEMINI_API_KEY=your-gemini-api-key-here
+GEMINI_API_KEY=AIzaSyCmELyd53kGMRg4v-RszkR1ebdlUBJeXy4
 ```
 
 ### 3.3 Backend Service Settings
