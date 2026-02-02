@@ -1,0 +1,292 @@
+// Prisma Schema for Tree Bank Database
+// PostgreSQL database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users (from LINE authentication)
+model User {
+  id            String    @id @default(uuid())
+  lineUserId    String    @unique
+  displayName   String
+  pictureUrl    String?
+  email         String?
+  phone         String?
+  role          UserRole  @default(MEMBER)
+  groupId       String?
+  group         Group?    @relation(fields: [groupId], references: [id])
+
+  // Relations
+  ownedPlots    Plot[]    @relation("PlotOwner")
+  uploadedDocs  Document[] @relation("DocumentUploader")
+  verifications Verification[] @relation("Verifier")
+  treeHistory   TreeHistory[]
+  carbonCredits CarbonCredit[] @relation("CarbonVerifier")
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([lineUserId])
+  @@index([groupId])
+}
+
+enum UserRole {
+  MEMBER
+  OFFICER
+  VERIFIER
+  ADMIN
+}
+
+// Groups (กลุ่มผู้ปลูก)
+model Group {
+  id           String   @id @default(uuid())
+  name         String
+  village      String
+  district     String
+  province     String
+  leaderId     String?
+  memberCount  Int      @default(0)
+  status       GroupStatus @default(PENDING)
+
+  // Relations
+  members      User[]
+  plots        Plot[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([province, district])
+}
+
+enum GroupStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+// Plots (แปลงที่ดิน)
+model Plot {
+  id          String   @id @default(uuid())
+  groupId     String?
+  ownerId     String
+  name        String
+  deedNumber  String?
+
+  // Area (Thai units)
+  areaRai     Decimal  @db.Decimal(10, 2)
+  areaNgan    Decimal? @db.Decimal(10, 2)
+  areaWa      Decimal? @db.Decimal(10, 2)
+  areaSqm     Decimal  @db.Decimal(10, 2)
+
+  // Location (stored as text, PostGIS extension for complex queries)
+  centerLat   Decimal  @db.Decimal(10, 7)
+  centerLng   Decimal  @db.Decimal(11, 7)
+  boundary    Json?    // Array of {lat, lng} points
+
+  status      PlotStatus @default(ACTIVE)
+
+  // Relations
+  group       Group?   @relation(fields: [groupId], references: [id])
+  owner       User     @relation("PlotOwner", fields: [ownerId], references: [id])
+  trees       Tree[]
+  documents   Document[]
+  verifications Verification[]
+  carbonCredits CarbonCredit[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerId])
+  @@index([groupId])
+  @@index([status])
+}
+
+enum PlotStatus {
+  ACTIVE
+  PENDING
+  VERIFIED
+  SUSPENDED
+}
+
+// Trees (ต้นไม้)
+model Tree {
+  id          String   @id @default(uuid())
+  plotId      String
+
+  // Location
+  lat         Decimal  @db.Decimal(10, 7)
+  lng         Decimal  @db.Decimal(11, 7)
+
+  // Tree info
+  treeType    String
+  status      TreeStatus
+  plantedDate DateTime @db.Date
+
+  // Measurements (optional)
+  dbhCm       Decimal? @db.Decimal(5, 2)  // Diameter at Breast Height
+  heightM     Decimal? @db.Decimal(5, 2)  // Height in meters
+
+  photoUrl    String?
+  notes       String?  @db.Text
+
+  // Relations
+  plot        Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  history     TreeHistory[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([plotId])
+  @@index([status])
+}
+
+enum TreeStatus {
+  HEALTHY
+  DAMAGED
+  DEAD
+  MISSING
+}
+
+// Tree History (Multi-layer tracking)
+model TreeHistory {
+  id          String   @id @default(uuid())
+  treeId      String
+  recordedBy  String
+
+  status      TreeStatus
+  dbhCm       Decimal? @db.Decimal(5, 2)
+  heightM     Decimal? @db.Decimal(5, 2)
+  photoUrl    String?
+  notes       String?  @db.Text
+
+  // Relations
+  tree        Tree     @relation(fields: [treeId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [recordedBy], references: [id])
+
+  recordedAt  DateTime @default(now())
+
+  @@index([treeId])
+  @@index([recordedBy])
+}
+
+// Documents (เอกสาร)
+model Document {
+  id          String   @id @default(uuid())
+  plotId      String
+  uploadedBy  String
+
+  fileName    String
+  fileType    DocumentType
+  fileUrl     String
+  fileSizeMb  Decimal  @db.Decimal(8, 2)
+
+  status      DocumentStatus @default(PENDING)
+  ocrResult   Json?    // Extracted data from OCR
+
+  verifiedBy  String?
+  verifiedAt  DateTime?
+
+  // Relations
+  plot        Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  uploader    User     @relation("DocumentUploader", fields: [uploadedBy], references: [id])
+
+  createdAt   DateTime @default(now())
+
+  @@index([plotId])
+  @@index([uploadedBy])
+  @@index([status])
+}
+
+enum DocumentType {
+  IMAGE
+  PDF
+  KML
+  KMZ
+}
+
+enum DocumentStatus {
+  PENDING
+  PROCESSING
+  VERIFIED
+  REJECTED
+}
+
+// Verification Records (Third-party verification)
+model Verification {
+  id              String   @id @default(uuid())
+  plotId          String
+  verifierId      String
+
+  verificationType VerificationType
+  scheduledDate   DateTime? @db.Date
+  completedDate   DateTime? @db.Date
+
+  status          VerificationStatus @default(SCHEDULED)
+
+  treesVerified   Int?
+  treesFoundHealthy Int?
+  discrepancies   Json?
+  reportUrl       String?
+  notes           String?  @db.Text
+
+  // Relations
+  plot            Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  verifier        User     @relation("Verifier", fields: [verifierId], references: [id])
+
+  createdAt       DateTime @default(now())
+
+  @@index([plotId])
+  @@index([verifierId])
+  @@index([status])
+}
+
+enum VerificationType {
+  RANDOM_5PCT
+  FULL
+  COMPLAINT
+}
+
+enum VerificationStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+// Carbon Credits Calculation
+model CarbonCredit {
+  id                String   @id @default(uuid())
+  plotId            String
+
+  calculationDate   DateTime @db.Date
+  healthyTreesCount Int
+  carbonKgPerYear   Decimal  @db.Decimal(10, 2)
+  estimatedValueThb Decimal? @db.Decimal(10, 2)
+
+  status            CreditStatus @default(CALCULATED)
+
+  verifiedBy        String?
+  verifiedAt        DateTime?
+
+  // Relations
+  plot              Plot     @relation(fields: [plotId], references: [id], onDelete: Cascade)
+  verifier          User?    @relation("CarbonVerifier", fields: [verifiedBy], references: [id])
+
+  createdAt         DateTime @default(now())
+
+  @@index([plotId])
+  @@index([status])
+}
+
+enum CreditStatus {
+  CALCULATED
+  PENDING_VERIFICATION
+  VERIFIED
+  ISSUED
+}

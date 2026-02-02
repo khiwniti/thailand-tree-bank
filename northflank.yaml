@@ -1,0 +1,84 @@
+# Northflank Configuration
+# https://northflank.com/
+
+version: "1.0"
+
+services:
+  # Frontend - LINE Mini App
+  - name: tree-bank-frontend
+    type: deployment
+    build:
+      dockerfile: Dockerfile
+      context: src/line
+    ports:
+      - name: http
+        port: 80
+        protocol: http
+        public: true
+    env:
+      - name: VITE_LIFF_ID
+        value: "2008934197-jM9Zoogn"
+      - name: VITE_GEMINI_API_KEY
+        secret: gemini-api-key
+      - name: VITE_API_URL
+        value: "${BACKEND_URL}"
+    resources:
+      cpu: 0.2
+      memory: 512
+    replicas: 1
+    healthcheck:
+      path: /health
+      interval: 30
+      timeout: 3
+
+  # Backend - REST API
+  - name: tree-bank-backend
+    type: deployment
+    build:
+      dockerfile: Dockerfile
+      context: backend
+    ports:
+      - name: http
+        port: 8080
+        protocol: http
+        public: true
+    env:
+      - name: NODE_ENV
+        value: production
+      - name: PORT
+        value: "8080"
+      - name: DATABASE_URL
+        value: "postgresql://_140015aa6d48cb43:_fb59a0b931a1b7e2e5f72b0a917f0c@primary.liff-db--q4wt5c4d9mvq.addon.code.run:28996/_83707e411701?sslmode=require"
+      - name: REDIS_URL
+        value: "rediss://default:808027dc8dbb883958e01a0cd3366578@master.liff-cache--q4wt5c4d9mvq.addon.code.run:6379"
+      - name: REDIS_TLS
+        value: "true"
+      - name: REDIS_SNI
+        value: "master.liff-cache--q4wt5c4d9mvq.addon.code.run"
+      - name: JWT_SECRET
+        secret: jwt-secret
+      - name: LINE_CHANNEL_SECRET
+        secret: line-channel-secret
+      - name: GEMINI_API_KEY
+        secret: gemini-api-key
+      - name: FRONTEND_URL
+        value: "${FRONTEND_URL}"
+      - name: LIFF_ID
+        value: "2008934197-jM9Zoogn"
+    resources:
+      cpu: 0.5
+      memory: 1024
+    replicas: 1
+    healthcheck:
+      path: /health
+      interval: 30
+      timeout: 3
+
+# Secrets (set these in Northflank UI)
+secrets:
+  - name: jwt-secret
+    description: Secret key for JWT token signing
+  - name: line-channel-secret
+    description: LINE channel secret from LINE Developers Console
+  - name: gemini-api-key
+    description: Google Gemini API key for AI features

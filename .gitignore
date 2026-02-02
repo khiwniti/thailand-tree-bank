@@ -1,5 +1,28 @@
 .vscode
-/node_modules
+node_modules
 .DS_Store
-/dist
+dist
 .netlify
+
+# Environment files
+.env.local
+.env*.local
+*.log
+
+# Build outputs
+*/dist
+*/node_modules
+
+# IDE
+.idea
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+
+# Uploads
+uploads/
+
+# Backend specific
+backend/.env.local
