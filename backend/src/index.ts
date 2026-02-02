@@ -12,17 +12,25 @@ dotenv.config();
 
 // Initialize clients
 const prisma = new PrismaClient();
-const redisClient = createClient({
-  url: process.env.REDIS_URL,
-  socket: {
-    tls: process.env.REDIS_TLS === 'true',
-    servername: process.env.REDIS_SNI,
-  },
-});
 
-// Connect to Redis
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
-redisClient.on('connect', () => console.log('✅ Connected to Redis'));
+// Initialize Redis client (optional)
+let redisClient: ReturnType<typeof createClient> | null = null;
+
+if (process.env.REDIS_URL) {
+  redisClient = createClient({
+    url: process.env.REDIS_URL,
+    socket: {
+      tls: process.env.REDIS_TLS === 'true',
+      servername: process.env.REDIS_SNI,
+    },
+  });
+
+  // Connect to Redis
+  redisClient.on('error', (err) => console.error('Redis Client Error', err));
+  redisClient.on('connect', () => console.log('✅ Connected to Redis'));
+} else {
+  console.warn('⚠️ REDIS_URL not set - Redis caching disabled');
+}
 
 // Create Express app
 const app: Express = express();
@@ -49,14 +57,22 @@ app.get('/health', async (req: Request, res: Response) => {
     // Check database connection
     await prisma.$queryRaw`SELECT 1`;
 
-    // Check Redis connection
-    const redisPing = await redisClient.ping();
+    // Check Redis connection (optional)
+    let redisStatus = 'disabled';
+    if (redisClient) {
+      try {
+        const redisPing = await redisClient.ping();
+        redisStatus = redisPing === 'PONG' ? 'connected' : 'disconnected';
+      } catch (err) {
+        redisStatus = 'error';
+      }
+    }
 
     res.json({
       status: 'OK',
       timestamp: new Date().toISOString(),
       database: 'connected',
-      redis: redisPing === 'PONG' ? 'connected' : 'disconnected',
+      redis: redisStatus,
       version: '1.0.0',
     });
   } catch (error) {
@@ -129,8 +145,15 @@ app.use((req: Request, res: Response) => {
 // Start server
 async function startServer() {
   try {
-    // Connect to Redis
-    await redisClient.connect();
+    // Connect to Redis (optional)
+    if (redisClient) {
+      try {
+        await redisClient.connect();
+        console.log('✅ Connected to Redis');
+      } catch (err) {
+        console.warn('⚠️ Redis connection failed, continuing without cache:', err);
+      }
+    }
 
     // Test database connection
     await prisma.$connect();
