@@ -1,13 +1,41 @@
 {
-  "name": "liff-starter",
-  "version": "3.0.0",
-  "description": "A minimun app to demo how to integrate LIFF",
+  "name": "thailand-tree-bank",
+  "version": "1.0.0",
+  "description": "Thailand Tree Bank - Carbon Credit Tracking System with LINE LIFF Integration",
   "repository": {
     "type": "git",
-    "url": "https://github.com/line/line-liff-v2-starter"
+    "url": "https://github.com/khiwniti/thailand-tree-bank.git"
   },
   "keywords": [
     "LINE",
-    "LIFF"
-  ]
+    "LIFF",
+    "tree-bank",
+    "carbon-credit",
+    "thailand",
+    "forestry",
+    "climate"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "clean": "rm -rf frontend/node_modules frontend/dist backend/node_modules backend/dist",
+    "db:generate": "cd backend && npm run db:generate",
+    "db:push": "cd backend && npm run db:push",
+    "db:migrate": "cd backend && npm run db:migrate",
+    "db:studio": "cd backend && npm run db:studio"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "author": "Thailand Tree Bank Project",
+  "license": "Apache-2.0"
 }

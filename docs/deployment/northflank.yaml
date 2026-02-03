@@ -82,3 +82,4 @@ secrets:
     description: LINE channel secret from LINE Developers Console
   - name: gemini-api-key
     description: Google Gemini API key for AI features
+ 
