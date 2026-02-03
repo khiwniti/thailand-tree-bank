@@ -31,7 +31,7 @@ router.get('/plots/:plotId', async (req: Request, res: Response) => {
     }
 
     // Calculate carbon
-    const healthyTreesCount = plot.trees.filter((t) => t.status === 'HEALTHY').length;
+    const healthyTreesCount = plot.trees.filter((t: any) => t.status === 'HEALTHY').length;
     const carbonKgPerYear = healthyTreesCount * CARBON_CREDIT_FACTOR;
     const estimatedValueThb = carbonKgPerYear * CARBON_MARKET_PRICE_THB;
 
