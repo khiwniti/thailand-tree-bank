@@ -9,8 +9,8 @@ RUN apk add --no-cache openssl
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies first
-RUN npm ci
+# Install dependencies (using npm install for Railway CLI compatibility)
+RUN npm install
 
 # Copy all source code (includes prisma/, src/, tsconfig.json)
 COPY . .
@@ -33,7 +33,7 @@ RUN apk add --no-cache openssl libssl3
 COPY package*.json ./
 
 # Install production dependencies only
-RUN npm ci --production
+RUN npm install --production
 
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
