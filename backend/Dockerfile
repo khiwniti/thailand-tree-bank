@@ -15,8 +15,8 @@ RUN npm install
 # Copy all source code (includes prisma/, src/, tsconfig.json)
 COPY . .
 
-# Generate Prisma Client (use local prisma from node_modules)
-RUN npm run db:generate
+# Generate Prisma Client
+RUN npx prisma generate
 
 # Build TypeScript
 RUN npm run build
