@@ -356,8 +356,21 @@ function App() {
     { name: 'มีปัญหา', value: totalTrees - healthyCount, color: '#ef4444' },
   ];
 
+  // Check if running in demo mode
+  const isDemoMode = !import.meta.env.VITE_LIFF_ID;
+
   return (
     <div className="flex flex-col h-screen bg-gray-50 max-w-md mx-auto shadow-2xl overflow-hidden relative border-x border-gray-200 font-sans">
+
+      {/* Demo Mode Banner */}
+      {isDemoMode && (
+        <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 text-center text-sm font-medium shadow-lg z-30 animate-pulse">
+          <div className="flex items-center justify-center gap-2">
+            <AlertCircle size={16} />
+            <span>โหมดทดสอบ (Demo Mode) - ตั้งค่า VITE_LIFF_ID เพื่อใช้งานจริง</span>
+          </div>
+        </div>
+      )}
 
       {/* Updated Header with LIFF profile */}
       <header className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 text-white p-4 pt-8 shadow-lg z-20 relative">

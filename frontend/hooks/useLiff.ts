@@ -32,8 +32,20 @@ export const useLiff = (): UseLiffReturn => {
       try {
         const liffId = import.meta.env.VITE_LIFF_ID;
 
+        // Demo mode: If no LIFF ID, use mock profile and continue
         if (!liffId) {
-          throw new Error('LIFF ID not found. Please set VITE_LIFF_ID in .env.local');
+          console.warn('⚠️ No LIFF ID configured. Running in DEMO MODE.');
+          console.warn('Set VITE_LIFF_ID environment variable for full functionality.');
+
+          // Set mock profile for demo
+          setIsLoggedIn(true);
+          setProfile({
+            userId: 'demo-user-12345',
+            displayName: 'ผู้ใช้ทดสอบ (Demo)',
+            pictureUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=demo',
+          });
+          setIsLoading(false);
+          return;
         }
 
         console.log('Initializing LIFF with ID:', liffId);
