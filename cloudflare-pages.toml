@@ -1,10 +1,10 @@
 # Cloudflare Pages Configuration
 # https://developers.cloudflare.com/pages/configuration/build-configuration/
 
-# Build settings
+# Build settings - Vanilla JS LIFF App
 [build]
-  command = "cd frontend && npm install && npm run build"
-  publish = "frontend/dist"
+  command = "cd line-liff-v2-starter/src/vanilla && npm install && npm run build"
+  publish = "line-liff-v2-starter/src/vanilla/dist"
 
 # Node.js version
 [build.environment]
