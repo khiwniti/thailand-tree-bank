@@ -4,7 +4,7 @@ import { Plot, Tree, TreeType, TreeStatus, CARBON_CREDIT_FACTOR, PlotDocument } 
 import PlotMap from './components/PlotMap';
 import TreeFormModal from './components/TreeFormModal';
 import SettingsModal from './components/SettingsModal';
-import { analyzePlot } from './services/openrouterService';
+import { analyzePlot } from './services/ollamaService';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useLiff } from './hooks/useLiff';
 import { raiToSqm } from './utils/landUnits';

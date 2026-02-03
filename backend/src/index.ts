@@ -97,6 +97,7 @@ app.get('/api', (req: Request, res: Response) => {
       documents: '/api/documents/*',
       carbon: '/api/carbon/*',
       verifications: '/api/verifications/*',
+      ai: '/api/ai/*',
     },
   });
 });
@@ -124,6 +125,10 @@ app.use('/api/carbon', carbonRoutes);
 // Verification routes
 import verificationRoutes from './routes/verifications.js';
 app.use('/api/verifications', verificationRoutes);
+
+// AI routes
+import aiRoutes from './routes/ai.js';
+app.use('/api/ai', aiRoutes);
 
 // Error handling middleware
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
