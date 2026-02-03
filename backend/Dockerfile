@@ -15,10 +15,7 @@ RUN npm install
 # Copy all source code (includes prisma/, src/, tsconfig.json)
 COPY . .
 
-# Generate Prisma Client
-RUN npx prisma generate
-
-# Build TypeScript
+# Build TypeScript (skip Prisma generation - will do at runtime)
 RUN npm run build
 
 # Production stage
@@ -51,5 +48,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:8080/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start server
-CMD ["node", "dist/index.js"]
+# Start server (generate Prisma client at runtime, then start)
+CMD npx prisma generate && node dist/index.js
